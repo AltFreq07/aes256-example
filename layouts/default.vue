@@ -1,91 +1,52 @@
 <template>
-  <v-app dark>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-app-bar :clipped-left="clipped" fixed app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="title" />
-      <v-spacer />
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
-    </v-app-bar>
+  <v-app>
     <v-main>
+      <h1>AES256 Example</h1>
       <v-container>
-        <nuxt />
+        <h3>Encryption</h3>
+        <v-text-field
+          v-model="plainText"
+          label="plaintext"
+          @keyup="encrypt"
+        ></v-text-field>
+        <p>Cipher Text: {{ cipherText }}</p>
+      </v-container>
+      <v-container>
+        <h3>Decryption</h3>
+        <v-text-field
+          v-model="cipherTextInput"
+          label="cipertext"
+          @keyup="decrypt"
+        ></v-text-field>
+        <p>Plaintext Text: {{ plainTextOutput }}</p>
       </v-container>
     </v-main>
-    <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light> mdi-repeat </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer :absolute="!fixed" app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
   </v-app>
 </template>
 
 <script>
+const CryptoJS = require('crypto-js')
+
 export default {
   data() {
     return {
-      clipped: false,
-      drawer: false,
-      fixed: false,
-      items: [
-        {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/',
-        },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire',
-        },
-      ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Vuetify.js',
+      plainText: '',
+      cipherText: '',
+      cipherTextInput: '',
+      plainTextOutput: '',
     }
+  },
+  methods: {
+    encrypt() {
+      this.cipherText = CryptoJS.AES.encrypt(
+        this.plainText,
+        'secret key 123'
+      ).toString()
+    },
+    decrypt() {
+      const bytes = CryptoJS.AES.decrypt(this.cipherTextInput, 'secret key 123')
+      this.plainTextOutput = bytes.toString(CryptoJS.enc.Utf8)
+    },
   },
 }
 </script>
